@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="320dp" android:height="180dp" android:viewportWidth="320" android:viewportHeight="180">
+    <!-- Full-bleed 16:9 art. Keep the mark inside a small safe area for launcher focus zoom. -->
+    <path android:fillColor="#141414" android:pathData="M0,0h320v180h-320z" />
+    <path android:fillColor="#E50914" android:pathData="M0,0h102v180h-102z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M23,42L83,90L23,138z" />
+    <!-- Outlined geometric lettering has no font or raster dependency on older TVs. -->
+    <path android:fillColor="@android:color/transparent" android:strokeColor="#FFFFFF"
+        android:strokeWidth="7" android:strokeLineCap="square" android:strokeLineJoin="round"
+        android:pathData="M131,34L149,34Q156,34 156,41L156,70Q156,77 149,77L131,77Q124,77 124,70L124,41Q124,34 131,34Z
+            M170,77L170,34L189,34Q199,34 199,45Q199,56 189,56L170,56
+            M242,34L213,34L213,77L242,77M213,55L237,55
+            M257,77L257,34L290,77L290,34
+            M124,103L124,146L155,146
+            M171,103L171,146
+            M216,103L194,103Q185,103 185,114Q185,124 194,124L207,124Q217,124 217,135Q217,146 207,146L185,146
+            M233,103L267,103M250,103L250,146" />
+    <path android:fillColor="#E50914" android:pathData="M285,133h13v13h-13z" />
+</vector>

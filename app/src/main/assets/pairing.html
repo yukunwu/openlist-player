@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>连接 OpenList TV</title>
+<style>
+:root{color-scheme:dark;font-family:Georgia,"Noto Serif SC",serif;--bg:#101010;--text:#f5f5f5;--muted:#b3b3b3;--accent:#e50914;background:var(--bg);color:var(--text)}body{margin:0;padding:32px 22px;background:radial-gradient(at top right,#303030,transparent 65%);min-height:100vh;box-sizing:border-box}main{max-width:460px;margin:auto}small{color:var(--muted);letter-spacing:.18em}h1{font-size:36px;margin:16px 0 8px}p{color:var(--muted);line-height:1.7}label{display:block;margin:20px 0 7px}input{box-sizing:border-box;width:100%;border:1px solid #606060;border-radius:10px;padding:14px;background:#242424b0;color:var(--text);font-size:17px}input:focus{outline:2px solid #eee}button{width:100%;margin-top:28px;padding:16px;border:0;border-radius:10px;background:var(--accent);color:var(--text);font-size:18px;font-weight:bold}button:disabled{opacity:.5}#status{white-space:pre-wrap}.code{font:24px monospace;letter-spacing:.15em;color:var(--text)}
+</style>
+<main>
+<small>OPENLIST TV / PAIR</small><h1>把片库带到电视</h1>
+<p>仅在可信的同一局域网使用。请核对电视上的配对标识：</p><div id="code" class="code"></div>
+<form id="form" autocomplete="off">
+<label for="server">OpenList 地址</label><input id="server" type="url" placeholder="https://你的服务器" required maxlength="2048">
+<label for="username">用户名</label><input id="username" required maxlength="256" autocapitalize="none" spellcheck="false">
+<label for="password">密码</label><input id="password" type="password" required maxlength="2048" autocomplete="off">
+<label for="otp">两步验证码（可选）</label><input id="otp" inputmode="numeric" maxlength="16">
+<button id="send" type="submit">加密发送到电视</button></form>
+<p id="status">二维码 3 分钟有效，仅能发送一次。发送后仍需在电视确认。不会向第三方服务器发送配置。</p>
+<p>密码使用二维码中的临时密钥加密；但此表单经局域网 HTTP 提供，不防恶意路由器篡改页面。公共 Wi-Fi 请改用电视手动输入。</p>
+</main>
+<script src="forge.min.js"></script>
+<script>
+'use strict';
+const key=new URLSearchParams(location.hash.slice(1)).get('k');
+const session=location.pathname.split('/')[2];
+history.replaceState(null,'',location.pathname);
+document.getElementById('code').textContent=session.slice(0,6).toUpperCase();
+const status=document.getElementById('status'),button=document.getElementById('send');
+if(!/^[a-f0-9]{64}$/.test(key||'')){button.disabled=true;status.textContent='配对链接无效，请重新扫描电视二维码。'}
+document.getElementById('form').addEventListener('submit',async e=>{
+ e.preventDefault();button.disabled=true;
+ try{
+  const payload={server:document.getElementById('server').value.trim(),username:document.getElementById('username').value.trim(),password:document.getElementById('password').value,otp:document.getElementById('otp').value};
+  const u=new URL(payload.server);if(!['http:','https:'].includes(u.protocol)||u.username||u.password||u.search||u.hash)throw Error('请输入不含账号、查询参数的 HTTP(S) 地址');
+  const iv=String.fromCharCode(...crypto.getRandomValues(new Uint8Array(12))),cipher=forge.cipher.createCipher('AES-GCM',forge.util.hexToBytes(key));
+  cipher.start({iv,additionalData:session,tagLength:128});cipher.update(forge.util.createBuffer(forge.util.encodeUtf8(JSON.stringify(payload))));
+  if(!cipher.finish())throw Error('加密失败');
+  const wire=forge.util.bytesToHex(iv+cipher.output.getBytes()+cipher.mode.tag.getBytes());
+  payload.password='';document.getElementById('password').value='';document.getElementById('otp').value='';
+  const response=await fetch('submit',{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:wire,cache:'no-store',credentials:'omit',redirect:'error'});
+  if(!response.ok)throw Error('配对失败或已过期，请在电视重新生成二维码');
+  status.textContent=await response.text();document.getElementById('form').hidden=true;
+ }catch(error){status.textContent=error.message||'连接失败，请确认手机与电视在同一局域网';button.disabled=false;}
+});
+</script>
+</html>

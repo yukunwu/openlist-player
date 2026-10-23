@@ -1,0 +1,9 @@
+{
+  "name": "openlist-pairing-crypto-build",
+  "private": true,
+  "scripts": { "build": "node build.mjs" },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "node-forge": "1.4.0"
+  }
+}
