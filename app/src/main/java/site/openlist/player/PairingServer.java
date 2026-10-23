@@ -130,7 +130,7 @@ final class PairingServer implements AutoCloseable {
             }
         }
         catch (Exception e) { reply(client, 403, "text/plain", "Invalid encrypted payload"); return; }
-        reply(client, 200, "text/plain; charset=utf-8", "已发送，请回到电视确认。");
+        reply(client, 200, "text/plain; charset=utf-8", "OK");
         received.accept(plain);
     }
 

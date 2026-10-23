@@ -12,7 +12,7 @@ final class Policy {
         if (!("https".equalsIgnoreCase(scheme) || "http".equalsIgnoreCase(scheme))
                 || uri.getHost() == null || uri.getUserInfo() != null
                 || uri.getQuery() != null || uri.getFragment() != null) {
-            throw new IllegalArgumentException("请输入完整的 HTTP(S) 服务器地址，不要附带账号或参数");
+            throw new UiError(R.string.invalid_server);
         }
         String s = uri.toASCIIString();
         while (s.endsWith("/")) s = s.substring(0, s.length() - 1);
@@ -33,7 +33,7 @@ final class Policy {
 
     static String child(String path, String name) {
         if (name.isEmpty() || name.equals(".") || name.equals("..") || name.contains("/")) {
-            throw new IllegalArgumentException("无效文件名");
+            throw new UiError(R.string.invalid_filename);
         }
         return (path.equals("/") ? "" : path) + "/" + name;
     }

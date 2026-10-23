@@ -131,14 +131,14 @@ public final class PlayerActivity extends Activity {
                 new int[]{0xb3000000, 0x00000000}));
         LinearLayout metadata = new LinearLayout(this);
         metadata.setOrientation(LinearLayout.VERTICAL);
-        TextView name = TvStyle.text(this, title == null ? "视频" : title, 16, TvStyle.TEXT);
+        TextView name = TvStyle.text(this, title == null ? getString(R.string.video) : title, 16, TvStyle.TEXT);
         name.setSingleLine(true); name.setEllipsize(TextUtils.TruncateAt.END); metadata.addView(name);
-        info = TvStyle.text(this, "正在载入视频信息", 11, TvStyle.MUTED);
+        info = TvStyle.text(this, getString(R.string.loading_metadata), 11, TvStyle.MUTED);
         info.setSingleLine(true); info.setEllipsize(TextUtils.TruncateAt.END); metadata.addView(info);
         header.addView(metadata, new LinearLayout.LayoutParams(0, -2, 1));
         root.addView(top, new FrameLayout.LayoutParams(-1, -2, Gravity.TOP));
         LinearLayout basic = playerView.findViewById(androidx.media3.ui.R.id.exo_basic_controls);
-        ratioButton = action(VideoPresentation.LABELS[videoMode], v -> showVideoModes());
+        ratioButton = action(VideoPresentation.labels(this)[videoMode], v -> showVideoModes());
         speedButton = action(PlaybackPolicy.SPEED_LABELS[PlaybackPolicy.speedIndex(speed)], v -> showSpeeds());
         // Insert before Media3's overflow sentinel so compact screens retain its overflow handling.
         basic.addView(ratioButton, Math.max(0, basic.getChildCount() - 1));
@@ -203,10 +203,10 @@ public final class PlayerActivity extends Activity {
     private void showVideoModes() {
         input.enterControls();
         playerView.setControllerShowTimeoutMs(0);
-        optionsMenu = AnchoredMenu.show(this, ratioButton, VideoPresentation.LABELS, videoMode, which -> {
+        optionsMenu = AnchoredMenu.show(this, ratioButton, VideoPresentation.labels(this), videoMode, which -> {
                     videoMode = which; playerView.setVideoMode(which);
                     getPreferences(MODE_PRIVATE).edit().putInt("video_mode", which).apply();
-                    ratioButton.setText(VideoPresentation.LABELS[which]);
+                    ratioButton.setText(VideoPresentation.labels(this)[which]);
                 }, this::restoreControllerTimeout);
     }
 
@@ -238,7 +238,7 @@ public final class PlayerActivity extends Activity {
         windowBrightness = VideoPresentation.brightness(value);
         WindowManager.LayoutParams p = getWindow().getAttributes(); p.screenBrightness = windowBrightness;
         getWindow().setAttributes(p);
-        if (hud) showLevel("亮度", windowBrightness, false);
+        if (hud) showLevel(getString(R.string.brightness), windowBrightness, false);
     }
 
     private void showLevel(String label, float value, boolean right) {
@@ -254,7 +254,7 @@ public final class PlayerActivity extends Activity {
         lockButton.setImageDrawable(new BrowserArt(locked ? BrowserArt.LOCK : BrowserArt.UNLOCK,
                 locked ? TvStyle.ACCENT : TvStyle.TEXT));
         lockButton.setBackground(TvStyle.browserBox(0x66000000, locked ? 0x99e50914 : 0));
-        lockButton.setContentDescription(locked ? "解锁画面" : "锁定画面");
+        lockButton.setContentDescription(locked ? getString(R.string.unlock) : getString(R.string.lock));
         lockButton.setVisibility(touchDevice && (locked ? lockHintVisible : controlsVisible) ? View.VISIBLE : View.GONE);
     }
 
@@ -334,7 +334,7 @@ public final class PlayerActivity extends Activity {
                 int volume = Math.max(0, Math.min(volumeMax, Math.round(touchVolume + gesture.delta(event.getY(), playerView.getHeight()) * volumeMax)));
                 try { audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0); }
                 catch (SecurityException ignored) { }
-                showLevel("音量", audio.getStreamVolume(AudioManager.STREAM_MUSIC) / (float) volumeMax, true);
+                showLevel(getString(R.string.volume), audio.getStreamVolume(AudioManager.STREAM_MUSIC) / (float) volumeMax, true);
             }
             return true;
         } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
@@ -383,11 +383,10 @@ public final class PlayerActivity extends Activity {
             @Override public void onPlayerError(PlaybackException error) {
                 if (errorVisible || isFinishing()) return;
                 errorVisible = true;
-                new AlertDialog.Builder(PlayerActivity.this).setTitle("播放暂时中断")
-                        .setMessage("错误：" + error.getErrorCodeName()
-                                + "\n可能是链接过期、网盘限速、网络异常，或电视不支持此编码。返回文件库重新打开可获取新链接。")
-                        .setPositiveButton("返回文件库", (a, b) -> finish())
-                        .setNegativeButton("重试", (a, b) -> { errorVisible = false; player.prepare(); player.play(); })
+                new AlertDialog.Builder(PlayerActivity.this).setTitle(getString(R.string.playback_error))
+                        .setMessage(getString(R.string.playback_error_detail, error.getErrorCodeName()))
+                        .setPositiveButton(getString(R.string.return_library), (a, b) -> finish())
+                        .setNegativeButton(getString(R.string.retry), (a, b) -> { errorVisible = false; player.prepare(); player.play(); })
                         .setOnCancelListener(x -> errorVisible = false).show();
             }
         });
@@ -402,7 +401,8 @@ public final class PlayerActivity extends Activity {
 
     private void details() {
         if (player == null) return;
-        info.setText(VideoPresentation.details(player.getVideoFormat(), player.getAudioFormat()));
+        info.setText(VideoPresentation.details(player.getVideoFormat(), player.getAudioFormat(),
+                getString(R.string.loading_metadata), getString(R.string.channels)));
     }
 
     @Override protected void onStart() { super.onStart(); stopping = false; initialize(); }
@@ -449,14 +449,14 @@ public final class PlayerActivity extends Activity {
                 if (event.getRepeatCount() == 0) {
                     if (player.getPlayWhenReady()) player.pause();
                     else { if (player.getPlaybackState() == Player.STATE_ENDED) player.seekTo(0); player.play(); }
-                    showFeedback(player.getPlayWhenReady() ? "播放" : "暂停");
+                    showFeedback(player.getPlayWhenReady() ? getString(R.string.play) : getString(R.string.pause));
                 }
             } else if (player.isCurrentMediaItemSeekable()
                     && (event.getRepeatCount() == 0 || event.getEventTime() - lastSeekKeyTime > 180)) {
                 lastSeekKeyTime = event.getEventTime();
                 long target = PlaybackPolicy.seekTarget(player.getCurrentPosition(), player.getDuration(),
                         key == KeyEvent.KEYCODE_DPAD_LEFT ? -10000 : 10000);
-                player.seekTo(target); showFeedback((key == KeyEvent.KEYCODE_DPAD_LEFT ? "−10 秒" : "+10 秒")
+                player.seekTo(target); showFeedback((key == KeyEvent.KEYCODE_DPAD_LEFT ? getString(R.string.seek_back) : getString(R.string.seek_forward))
                         + "  ·  " + String.format(java.util.Locale.ROOT, "%02d:%02d", target / 60000, target / 1000 % 60));
             }
             return true;

@@ -17,7 +17,7 @@ final class FilePresentation {
     }
 
     static String title(String path) {
-        if (path.equals("/")) return "文件库";
+        if (path.equals("/")) return "";
         int end = path.endsWith("/") ? path.length() - 1 : path.length();
         return path.substring(path.lastIndexOf('/', end - 1) + 1, end);
     }

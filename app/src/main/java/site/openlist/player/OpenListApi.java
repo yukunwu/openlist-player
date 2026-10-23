@@ -15,7 +15,7 @@ final class OpenListApi {
 
     JSONObject post(String route, JSONObject body) throws Exception {
         URL url = new URL(server + route);
-        if (!Policy.sameOrigin(server, url.toString())) throw new Exception("拒绝跨域 API 请求");
+        if (!Policy.sameOrigin(server, url.toString())) throw new UiError(R.string.cross_origin);
         HttpURLConnection c = (HttpURLConnection) url.openConnection();
         try {
             c.setConnectTimeout(15000);
@@ -30,14 +30,14 @@ final class OpenListApi {
             c.setFixedLengthStreamingMode(data.length);
             try (java.io.OutputStream out = c.getOutputStream()) { out.write(data); }
             int status = c.getResponseCode();
-            if (status >= 300 && status < 400) throw new Exception("API 地址发生跳转，请填写最终服务器地址");
-            if (status < 200 || status >= 300) throw new Exception("服务器 HTTP " + status);
+            if (status >= 300 && status < 400) throw new UiError(R.string.api_redirect);
+            if (status < 200 || status >= 300) throw new UiError(R.string.api_http, status);
             byte[] bytes;
             try (InputStream in = c.getInputStream(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                 byte[] buffer = new byte[8192];
                 int n;
                 while ((n = in.read(buffer)) != -1) {
-                    if (out.size() + n > 8 * 1024 * 1024) throw new Exception("目录响应过大，请减少分页大小");
+                    if (out.size() + n > 8 * 1024 * 1024) throw new UiError(R.string.response_large);
                     out.write(buffer, 0, n);
                 }
                 bytes = out.toByteArray();
@@ -45,9 +45,9 @@ final class OpenListApi {
             JSONObject json = new JSONObject(new String(bytes, StandardCharsets.UTF_8));
             int code = json.optInt("code", -1);
             if (code != 200) {
-                if (code == 401 || code == 403) throw new Exception("没有访问权限或登录已过期，请重新登录（" + code + "）");
+                if (code == 401 || code == 403) throw new UiError(R.string.api_auth, code);
                 // Do not echo backend messages that may include signed URLs or credentials.
-                throw new Exception("OpenList 返回错误 " + code + "，请检查账号、目录权限或存储状态");
+                throw new UiError(R.string.api_error, code);
             }
             return json;
         } finally { c.disconnect(); }

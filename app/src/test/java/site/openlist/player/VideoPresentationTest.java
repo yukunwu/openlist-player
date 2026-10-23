@@ -22,8 +22,8 @@ public class VideoPresentationTest {
         Format video = new Format.Builder().setWidth(3840).setHeight(2160)
                 .setSampleMimeType("video/hevc").setFrameRate(23.976f).build();
         Format audio = new Format.Builder().setSampleMimeType("audio/ac3").setChannelCount(6).build();
-        assertEquals("3840 × 2160  ·  HEVC  ·  24.0 fps  ·  AC-3 / 6 声道", VideoPresentation.details(video, audio));
-        assertEquals("正在载入视频信息", VideoPresentation.details(null, null));
-        assertEquals("H.264", VideoPresentation.details(new Format.Builder().setSampleMimeType("video/avc").build(), null));
+        assertEquals("3840 × 2160  ·  HEVC  ·  24.0 fps  ·  AC-3 / 6 声道", VideoPresentation.details(video, audio, "正在载入视频信息", "%1$d 声道"));
+        assertEquals("正在载入视频信息", VideoPresentation.details(null, null, "正在载入视频信息", "%1$d 声道"));
+        assertEquals("H.264", VideoPresentation.details(new Format.Builder().setSampleMimeType("video/avc").build(), null, "Loading media details", "%1$d channels"));
     }
 }

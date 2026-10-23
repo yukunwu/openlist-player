@@ -84,16 +84,16 @@ public final class MainActivity extends Activity {
         LinearLayout.LayoutParams logoParams = lp(d(38), d(38));
         logoParams.bottomMargin = d(18);
         rail.addView(logo, logoParams);
-        addRail(rail, BrowserArt.LIBRARY, "文件库", true, v -> load("/", 1));
-        addRail(rail, BrowserArt.UP, "上一级", false, v -> up());
-        addRail(rail, BrowserArt.REFRESH, "刷新", false, v -> load(path, 1));
+        addRail(rail, BrowserArt.LIBRARY, getString(R.string.library), true, v -> load("/", 1));
+        addRail(rail, BrowserArt.UP, getString(R.string.up), false, v -> up());
+        addRail(rail, BrowserArt.REFRESH, getString(R.string.refresh), false, v -> load(path, 1));
         View spacer = new View(this);
         rail.addView(spacer, new LinearLayout.LayoutParams(1, 0, 1));
-        addRail(rail, BrowserArt.SERVER, "服务器", false, v -> new AlertDialog.Builder(this)
-                .setTitle("服务器与账号")
-                .setItems(new String[]{"连接服务器 / 登录", "退出账号"}, (dialog, which) -> {
+        addRail(rail, BrowserArt.SERVER, getString(R.string.server), false, v -> new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.server_account))
+                .setItems(new String[]{getString(R.string.connect_login), getString(R.string.logout)}, (dialog, which) -> {
                     if (which == 0) showLogin(); else confirmLogout();
-                }).setNegativeButton("取消", null).show());
+                }).setNegativeButton(getString(R.string.cancel), null).show());
 
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
@@ -101,7 +101,7 @@ public final class MainActivity extends Activity {
         root.addView(content, new LinearLayout.LayoutParams(0, -1, 1));
         LinearLayout masthead = new LinearLayout(this);
         masthead.setGravity(Gravity.CENTER_VERTICAL);
-        folderTitle = TvStyle.text(this, "文件库", 20, TvStyle.BROWSER_TEXT);
+        folderTitle = TvStyle.text(this, getString(R.string.library), 20, TvStyle.BROWSER_TEXT);
         folderTitle.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         folderTitle.setSingleLine(true); folderTitle.setEllipsize(TextUtils.TruncateAt.END);
         masthead.addView(folderTitle, new LinearLayout.LayoutParams(0, -2, 1));
@@ -116,11 +116,11 @@ public final class MainActivity extends Activity {
 
         LinearLayout breadcrumb = new LinearLayout(this);
         breadcrumb.setGravity(Gravity.CENTER_VERTICAL);
-        location = TvStyle.text(this, "所有文件  /", 12, TvStyle.BROWSER_MUTED);
+        location = TvStyle.text(this, getString(R.string.all_files), 12, TvStyle.BROWSER_MUTED);
         location.setSingleLine(true);
         location.setEllipsize(TextUtils.TruncateAt.START);
         breadcrumb.addView(location, new LinearLayout.LayoutParams(0, -2, 1));
-        summary = TvStyle.text(this, "云端文件，随心播放", 11, TvStyle.BROWSER_MUTED);
+        summary = TvStyle.text(this, getString(R.string.cloud_files), 11, TvStyle.BROWSER_MUTED);
         summary.setPadding(d(12), 0, 0, 0);
         breadcrumb.addView(summary);
         LinearLayout.LayoutParams breadcrumbParams = lp(-1, d(26));
@@ -128,9 +128,9 @@ public final class MainActivity extends Activity {
 
         LinearLayout columns = new LinearLayout(this);
         columns.setPadding(d(18), 0, d(20), d(5));
-        TextView columnName = TvStyle.text(this, "名称", 11, TvStyle.BROWSER_MUTED);
+        TextView columnName = TvStyle.text(this, getString(R.string.name), 11, TvStyle.BROWSER_MUTED);
         columns.addView(columnName, new LinearLayout.LayoutParams(0, -2, 1));
-        TextView columnKind = TvStyle.text(this, "大小", 11, TvStyle.BROWSER_MUTED);
+        TextView columnKind = TvStyle.text(this, getString(R.string.size), 11, TvStyle.BROWSER_MUTED);
         columns.addView(columnKind);
         content.addView(columns);
         ScrollView scroll = new ScrollView(this);
@@ -143,10 +143,10 @@ public final class MainActivity extends Activity {
         scroll.addView(body);
         LinearLayout footer = new LinearLayout(this);
         footer.setGravity(Gravity.CENTER_VERTICAL);
-        status = TvStyle.text(this, "连接服务器，开始浏览", 11, TvStyle.BROWSER_MUTED);
+        status = TvStyle.text(this, getString(R.string.connect_start), 11, TvStyle.BROWSER_MUTED);
         status.setSingleLine(true); status.setEllipsize(TextUtils.TruncateAt.END);
         footer.addView(status, new LinearLayout.LayoutParams(0, -2, 1));
-        TextView hint = TvStyle.text(this, "方向键 移动    OK 打开    返回 上一级", 10, TvStyle.BROWSER_MUTED);
+        TextView hint = TvStyle.text(this, getString(R.string.remote_hint), 10, TvStyle.BROWSER_MUTED);
         hint.setPadding(d(12), 0, 0, 0); footer.addView(hint);
         LinearLayout.LayoutParams footerParams = lp(-1, d(22));
         footerParams.topMargin = d(3); content.addView(footer, footerParams);
@@ -156,9 +156,9 @@ public final class MainActivity extends Activity {
     }
 
     private void confirmLogout() {
-        new AlertDialog.Builder(this).setTitle("退出账号？")
-                .setMessage("清除此设备保存的登录令牌，不删除云盘文件。")
-                .setNegativeButton("取消", null).setPositiveButton("退出", (a, b) -> {
+        new AlertDialog.Builder(this).setTitle(getString(R.string.logout_title))
+                .setMessage(getString(R.string.logout_message))
+                .setNegativeButton(getString(R.string.cancel), null).setPositiveButton(getString(R.string.exit), (a, b) -> {
                     generation++;
                     store.clear();
                     if (api != null) api = new OpenListApi(api.server, "");
@@ -187,8 +187,8 @@ public final class MainActivity extends Activity {
     }
 
     private void updateConnection() {
-        if (api == null) { connection.setText("未连接"); return; }
-        connection.setText((api.token.isEmpty() ? "访客  ·  " : "已登录  ·  ") + Uri.parse(api.server).getHost());
+        if (api == null) { connection.setText(getString(R.string.not_connected)); return; }
+        connection.setText((api.token.isEmpty() ? getString(R.string.guest_prefix) : getString(R.string.signed_in_prefix)) + Uri.parse(api.server).getHost());
     }
 
     private EditText field(LinearLayout form, String hint, String value, int type) {
@@ -209,21 +209,21 @@ public final class MainActivity extends Activity {
         generation++; busy = false;
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL); form.setPadding(d(24), d(12), d(24), 0);
-        EditText url = field(form, "OpenList 服务器", "", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-        EditText user = field(form, "用户名（推荐只读影视账号）", "", InputType.TYPE_CLASS_TEXT);
-        EditText pass = field(form, "密码（不保存）", "", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        EditText otp = field(form, "两步验证码（未开启则留空）", "", InputType.TYPE_CLASS_NUMBER);
+        EditText url = field(form, getString(R.string.server_label), "", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+        EditText user = field(form, getString(R.string.user_label), "", InputType.TYPE_CLASS_TEXT);
+        EditText pass = field(form, getString(R.string.password_label), "", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        EditText otp = field(form, getString(R.string.otp_label), "", InputType.TYPE_CLASS_NUMBER);
         loginUrl = url; loginUser = user; loginPass = pass; loginOtp = otp;
-        form.addView(TvStyle.button(this, "手机扫码填写配置", v -> {
+        form.addView(TvStyle.button(this, getString(R.string.scan_config), v -> {
             if (loginDialog != null) loginDialog.dismiss();
             startActivityForResult(new Intent(this, PairingActivity.class), PAIR_REQUEST);
         }));
-        TextView feedback = TvStyle.text(this, "登录令牌由 Android Keystore 加密保存。HTTP 会明文传输，请优先使用 HTTPS。", 12, TvStyle.MUTED);
+        TextView feedback = TvStyle.text(this, getString(R.string.session_notice), 12, TvStyle.MUTED);
         form.addView(feedback);
         ScrollView scroller = new ScrollView(this); scroller.addView(form);
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("连接你的片库")
-                .setView(scroller).setPositiveButton("登录", null)
-                .setNeutralButton("访客浏览", null).setNegativeButton("取消", null).create();
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(getString(R.string.connect_library))
+                .setView(scroller).setPositiveButton(getString(R.string.login), null)
+                .setNeutralButton(getString(R.string.guest_browse), null).setNegativeButton(getString(R.string.cancel), null).create();
         loginDialog = dialog;
         dialog.setOnDismissListener(x -> { pass.setText(""); otp.setText(""); });
         dialog.setOnShowListener(x -> {
@@ -232,18 +232,18 @@ public final class MainActivity extends Activity {
                     String server = Policy.server(url.getText().toString());
                     generation++; store.clear(); store.server(server); api = new OpenListApi(server, "");
                     pass.setText(""); dialog.dismiss(); updateConnection(); load("/", 1);
-                } catch (RuntimeException e) { feedback.setText(e.getMessage()); }
+                } catch (RuntimeException e) { feedback.setText(message(e)); }
             });
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
                 final String server;
                 try { server = Policy.server(url.getText().toString()); }
-                catch (RuntimeException e) { feedback.setText(e.getMessage()); return; }
-                if (user.getText().toString().trim().isEmpty()) { feedback.setText("请填写用户名，或选择访客浏览。"); return; }
+                catch (RuntimeException e) { feedback.setText(message(e)); return; }
+                if (user.getText().toString().trim().isEmpty()) { feedback.setText(getString(R.string.username_required)); return; }
                 String username = user.getText().toString().trim();
                 String password = pass.getText().toString(); String code = otp.getText().toString();
                 pass.setText(""); otp.setText("");
                 Button login = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                login.setEnabled(false); feedback.setText("正在连接…");
+                login.setEnabled(false); feedback.setText(getString(R.string.connecting));
                 int request = ++generation;
                 io.execute(() -> {
                     try {
@@ -251,12 +251,12 @@ public final class MainActivity extends Activity {
                         if (!code.isEmpty()) data.put("otp_code", code);
                         JSONObject response = new OpenListApi(server, "").post("/api/auth/login", data);
                         String token = response.getJSONObject("data").getString("token");
-                        if (token.isEmpty()) throw new Exception("服务器未返回登录令牌");
+                        if (token.isEmpty()) throw new Exception(getString(R.string.missing_token));
                         runOnUiThread(() -> {
                             if (isDestroyed() || request != generation || !dialog.isShowing()) return;
                             api = new OpenListApi(server, token); store.server(server);
                             try { store.save(server, token); }
-                            catch (Exception e) { store.clear(); toast("设备密钥不可用：本次会话不会保存"); }
+                            catch (Exception e) { store.clear(); toast(getString(R.string.key_unavailable)); }
                             dialog.dismiss(); updateConnection(); load("/", 1);
                         });
                     } catch (Exception e) {
@@ -287,7 +287,7 @@ public final class MainActivity extends Activity {
         if (api == null) { showLogin(); return; }
         final int request = ++generation;
         final OpenListApi client = api;
-        busy = true; status.setText("正在读取目录…");
+        busy = true; status.setText(getString(R.string.loading_directory));
         io.execute(() -> {
             try {
                 JSONObject result = client.post("/api/fs/list", new JSONObject().put("path", destination)
@@ -300,16 +300,16 @@ public final class MainActivity extends Activity {
                 runOnUiThread(() -> {
                     if (isDestroyed() || request != generation) return;
                     busy = false; path = destination; page = nextPage; entries.clear(); entries.addAll(list);
-                    location.setText(path.equals("/") ? "所有文件  /" : "所有文件  /  " + path.substring(1).replace("/", "  /  "));
-                    folderTitle.setText(FilePresentation.title(path)); render(total);
+                    location.setText(path.equals("/") ? getString(R.string.all_files) : getString(R.string.all_files_prefix) + path.substring(1).replace("/", "  /  "));
+                    folderTitle.setText(path.equals("/") ? getString(R.string.library) : FilePresentation.title(path)); render(total);
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     if (isDestroyed() || request != generation) return;
                     busy = false; status.setText(message(e));
-                    new AlertDialog.Builder(this).setTitle("暂时无法读取目录").setMessage(message(e))
-                            .setPositiveButton("重试", (a, b) -> load(destination, nextPage))
-                            .setNeutralButton("登录", (a, b) -> showLogin()).setNegativeButton("返回", null).show();
+                    new AlertDialog.Builder(this).setTitle(getString(R.string.directory_error)).setMessage(message(e))
+                            .setPositiveButton(getString(R.string.retry), (a, b) -> load(destination, nextPage))
+                            .setNeutralButton(getString(R.string.login), (a, b) -> showLogin()).setNegativeButton(getString(R.string.back), null).show();
                 });
             }
         });
@@ -317,16 +317,16 @@ public final class MainActivity extends Activity {
 
     private void render(int total) {
         body.removeAllViews();
-        if (!path.equals("/")) addRow(BrowserArt.UP, "上一级目录", "返回父目录", "", v -> up());
+        if (!path.equals("/")) addRow(BrowserArt.UP, getString(R.string.parent_directory), getString(R.string.return_parent), "", v -> up());
         for (Entry entry : entries) {
             boolean video = Policy.video(entry.name);
             int kind = entry.dir ? BrowserArt.FOLDER : video ? BrowserArt.VIDEO : BrowserArt.FILE;
-            View row = addRow(kind, entry.name, entry.dir ? "文件夹" : FilePresentation.extension(entry.name)
-                    + (video ? "  ·  视频" : "  ·  文件"), entry.dir ? "打开目录" : FilePresentation.size(entry.size), v -> {
+            View row = addRow(kind, entry.name, entry.dir ? getString(R.string.folder) : FilePresentation.extension(entry.name)
+                    + (video ? getString(R.string.video_suffix) : getString(R.string.file_suffix)), entry.dir ? getString(R.string.open_directory) : FilePresentation.size(entry.size), v -> {
                 if (busy) return;
                 if (entry.dir) load(Policy.child(path, entry.name), 1);
                 else if (Policy.video(entry.name)) resolve(entry, false);
-                else toast("当前版本仅打开视频文件");
+                else toast(getString(R.string.videos_only));
             });
             if (video && !entry.dir) row.setOnLongClickListener(v -> {
                 if (!busy) choose(entry, v);
@@ -338,20 +338,20 @@ public final class MainActivity extends Activity {
             empty.setOrientation(LinearLayout.VERTICAL); empty.setGravity(Gravity.CENTER);
             empty.setPadding(d(20), d(32), d(20), d(32));
             empty.addView(icon(BrowserArt.FOLDER, TvStyle.TEXT), lp(d(40), d(40)));
-            TextView label = TvStyle.text(this, "这里还没有文件", 20, TvStyle.BROWSER_TEXT);
+            TextView label = TvStyle.text(this, getString(R.string.no_files), 20, TvStyle.BROWSER_TEXT);
             label.setPadding(0, d(14), 0, d(6)); empty.addView(label);
-            empty.addView(TvStyle.text(this, "切换其他目录，或使用左侧刷新", 12, TvStyle.BROWSER_MUTED));
+            empty.addView(TvStyle.text(this, getString(R.string.empty_hint), 12, TvStyle.BROWSER_MUTED));
             body.addView(empty);
         }
         LinearLayout nav = new LinearLayout(this);
-        if (page > 1) nav.addView(TvStyle.button(this, "上一页", v -> load(path, page - 1)));
-        if ((long) page * PAGE_SIZE < total) nav.addView(TvStyle.button(this, "下一页", v -> load(path, page + 1)));
+        if (page > 1) nav.addView(TvStyle.button(this, getString(R.string.previous_page), v -> load(path, page - 1)));
+        if ((long) page * PAGE_SIZE < total) nav.addView(TvStyle.button(this, getString(R.string.next_page), v -> load(path, page + 1)));
         body.addView(nav);
         int folders = 0, videos = 0;
         for (Entry entry : entries) { if (entry.dir) folders++; else if (Policy.video(entry.name)) videos++; }
-        summary.setText(entries.isEmpty() ? "空目录" : (total > PAGE_SIZE ? "本页  ·  " : "")
-                + folders + " 文件夹  ·  " + videos + " 视频");
-        status.setText("共 " + total + " 项    /    第 " + page + " 页");
+        summary.setText(entries.isEmpty() ? getString(R.string.empty_directory) : (total > PAGE_SIZE ? getString(R.string.this_page) : "")
+                + getString(R.string.folder_counts, folders, videos));
+        status.setText(getString(R.string.page_status, total, page));
         body.post(() -> {
             for (int i = 0; i < body.getChildCount(); i++) {
                 if (body.getChildAt(i).requestFocus()) break;
@@ -392,7 +392,7 @@ public final class MainActivity extends Activity {
     }
 
     private void choose(Entry entry, View anchor) {
-        AnchoredMenu.show(this, anchor, new String[]{"内置播放器", "外部播放器"}, 0,
+        AnchoredMenu.show(this, anchor, new String[]{getString(R.string.internal_player), getString(R.string.external_player)}, 0,
                 which -> resolve(entry, which == 1), null);
     }
 
@@ -401,25 +401,25 @@ public final class MainActivity extends Activity {
         if (busy) return;
         int request = ++generation;
         OpenListApi client = api; String file = Policy.child(path, entry.name);
-        busy = true; status.setText("正在获取播放地址…");
+        busy = true; status.setText(getString(R.string.resolving));
         io.execute(() -> {
             try {
                 JSONObject data = client.post("/api/fs/get", new JSONObject().put("path", file).put("password", "")).getJSONObject("data");
                 String url = data.optString("raw_url");
-                if (!Policy.mediaUrl(url)) throw new Exception("该文件没有可用的 HTTP(S) 播放地址");
+                if (!Policy.mediaUrl(url)) throw new Exception(getString(R.string.no_media_url));
                 HashMap<String, String> headers = new HashMap<>();
                 // fs/get.header is page metadata, not media credentials. Drivers needing headers
                 // must expose a playable proxy URL through OpenList's existing Web Proxy setting.
                 runOnUiThread(() -> {
                     if (isDestroyed() || request != generation) return;
                     busy = false;
-                    status.setText("播放来源：" + Uri.parse(url).getHost() + "  ·  最终流量路径取决于存储策略");
+                    status.setText(getString(R.string.playback_source, Uri.parse(url).getHost()));
                     if (external) {
-                        if (!headers.isEmpty()) { toast("此源需要额外请求头，请使用内置播放器"); return; }
+                        if (!headers.isEmpty()) { toast(getString(R.string.headers_internal)); return; }
                         Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(Uri.parse(url), "video/*");
                         intent.putExtra(Intent.EXTRA_TITLE, entry.name);
-                        try { startActivity(Intent.createChooser(intent, "选择播放器（会向所选应用提供播放链接）")); }
-                        catch (ActivityNotFoundException e) { toast("请先安装 Just Player、VLC 等播放器"); }
+                        try { startActivity(Intent.createChooser(intent, getString(R.string.choose_player))); }
+                        catch (ActivityNotFoundException e) { toast(getString(R.string.install_player)); }
                     } else {
                         Intent intent = new Intent(this, PlayerActivity.class);
                         intent.putExtra("url", url); intent.putExtra("title", entry.name);
@@ -430,17 +430,18 @@ public final class MainActivity extends Activity {
                 runOnUiThread(() -> {
                     if (isDestroyed() || request != generation) return;
                     busy = false; status.setText(message(e));
-                    new AlertDialog.Builder(this).setTitle("无法获取播放地址").setMessage(message(e)).setPositiveButton("知道了", null).show();
+                    new AlertDialog.Builder(this).setTitle(getString(R.string.resolve_error)).setMessage(message(e)).setPositiveButton(getString(R.string.ok), null).show();
                 });
             }
         });
     }
 
     private String message(Exception e) {
-        if (e instanceof java.net.SocketTimeoutException) return "连接超时，请检查网络与 OpenList 服务";
-        if (e instanceof javax.net.ssl.SSLException) return "HTTPS 证书验证失败，请检查服务器证书";
-        if (e instanceof java.io.IOException) return "网络请求失败，请检查地址、网络及 OpenList 服务";
-        return e.getMessage() == null ? "操作未完成，请重试" : e instanceof org.json.JSONException ? "服务器响应格式不兼容" : e.getMessage();
+        if (e instanceof UiError) return getString(((UiError) e).resource, ((UiError) e).arguments);
+        if (e instanceof java.net.SocketTimeoutException) return getString(R.string.network_timeout);
+        if (e instanceof javax.net.ssl.SSLException) return getString(R.string.tls_error);
+        if (e instanceof java.io.IOException) return getString(R.string.network_error);
+        return e.getMessage() == null ? getString(R.string.generic_error) : e instanceof org.json.JSONException ? getString(R.string.response_error) : e.getMessage();
     }
 
     private void toast(String text) { android.widget.Toast.makeText(this, text, android.widget.Toast.LENGTH_LONG).show(); }
@@ -448,8 +449,8 @@ public final class MainActivity extends Activity {
 
     @Override public void onBackPressed() {
         if (!path.equals("/")) { load(Policy.parent(path), 1); return; }
-        new AlertDialog.Builder(this).setTitle("退出 OpenList TV？")
-                .setNegativeButton("继续浏览", null).setPositiveButton("退出", (a, b) -> finish()).show();
+        new AlertDialog.Builder(this).setTitle(getString(R.string.exit_title))
+                .setNegativeButton(getString(R.string.keep_browsing), null).setPositiveButton(getString(R.string.exit), (a, b) -> finish()).show();
     }
 
     @Override protected void onSaveInstanceState(Bundle out) { out.putString("path", path); super.onSaveInstanceState(out); }

@@ -32,10 +32,15 @@ try {
   });
   browser = await chromium.launch({ headless: true,
     ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}) });
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  const locale = process.env.TEST_LOCALE || 'en-US';
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, locale });
   const requests = [];
   page.on('request', r => requests.push({ url: r.url(), body: r.postData() }));
   await page.goto(url);
+  const chinese = locale.startsWith('zh');
+  assert.equal(await page.locator('h1').textContent(), chinese ? '把片库带到电视' : 'Your library, on TV');
+  assert.equal(await page.locator('#server').inputValue(), '');
+  assert.equal(await page.locator('#username').inputValue(), '');
   assert.equal(await page.evaluate(() => typeof forge.pki), 'undefined', 'RSA/PKI must not be bundled');
   assert.equal(await page.evaluate(() => typeof forge.asn1), 'undefined', 'ASN.1 must not be bundled');
   assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor), 'rgb(16, 16, 16)');
@@ -46,6 +51,7 @@ try {
   await page.locator('#otp').fill('123456');
   await page.locator('#send').click();
   await page.waitForFunction(() => document.querySelector('#form').hidden);
+  assert.equal(await page.locator('#status').textContent(), chinese ? '已发送，请回到电视确认。' : 'Sent. Confirm on your TV.');
   const payload = JSON.parse(await readFile(payloadFile, 'utf8'));
   assert.deepEqual(payload, { server: 'https://media.example.test', username: '只读测试',
     password: 'synthetic-test-only-123', otp: '123456' });
@@ -54,7 +60,7 @@ try {
   assert(!post.body.includes('synthetic-test-only-123'));
   assert(requests.every(x => new URL(x.url).host === new URL(url).host));
   assert.equal(await page.locator('#password').inputValue(), '');
-  await page.screenshot({ path: `${work}/sent.png`, fullPage: true });
+  await page.screenshot({ path: `${work}/sent-${locale}.png`, fullPage: true });
   console.log('PASS: mobile browser form -> AES-GCM -> Java receiver; no external requests or plaintext credential on wire');
 } finally {
   await browser?.close(); harness.kill('SIGTERM');

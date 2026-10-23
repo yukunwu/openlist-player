@@ -46,13 +46,13 @@ public final class PlayerUiInstrumentation extends Instrumentation {
             check(!info.getText().toString().contains("确认"), "Metadata contains operation instructions");
             VideoPlayerView player = findPlayer(activity.getWindow().getDecorView());
             check(player != null, "Player not found");
-            for (String mode : new String[]{"4:3", "16:9", "拉伸铺满", "原始比例"}) {
+            for (String mode : new String[]{"4:3", "16:9", activity.getString(R.string.stretch_ratio), activity.getString(R.string.original_ratio)}) {
                 runOnMainSync(player::showController); waitForIdleSync();
-                click(VideoPresentation.LABELS[VideoPresentation.validMode(activity.getPreferences(0).getInt("video_mode", 0))]);
+                click(VideoPresentation.labels(activity)[VideoPresentation.validMode(activity.getPreferences(0).getInt("video_mode", 0))]);
                 clickNode(mode); SystemClock.sleep(350); waitForIdleSync();
                 AspectRatioFrameLayout frame = activity.findViewById(androidx.media3.ui.R.id.exo_content_frame);
                 float actual = frame.getWidth() / (float) frame.getHeight();
-                float expected = mode.equals("4:3") ? 4f / 3f : mode.equals("拉伸铺满")
+                float expected = mode.equals("4:3") ? 4f / 3f : mode.equals(activity.getString(R.string.stretch_ratio))
                         ? player.getWidth() / (float) player.getHeight() : 16f / 9f;
                 check(Math.abs(actual - expected) < .02f, "Incorrect measured ratio for " + mode);
             }
@@ -70,8 +70,8 @@ public final class PlayerUiInstrumentation extends Instrumentation {
             check(activity.getWindow().getAttributes().screenBrightness >= .02f
                     && activity.getWindow().getAttributes().screenBrightness != before, "Immediate brightness swipe failed");
             check(systemBrightness == Settings.System.getInt(getTargetContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 128), "System brightness was modified");
-            runOnMainSync(player::showController); waitForIdleSync(); clickDescription("锁定画面");
-            View lock = findDescription(activity.getWindow().getDecorView(), "解锁画面");
+            runOnMainSync(player::showController); waitForIdleSync(); clickDescription(activity.getString(R.string.lock));
+            View lock = findDescription(activity.getWindow().getDecorView(), activity.getString(R.string.unlock));
             check(lock != null && lock.isShown(), "Lock confirmation icon missing");
             int[] lockPoint = new int[2];
             runOnMainSync(() -> {

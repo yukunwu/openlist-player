@@ -20,7 +20,7 @@ public class FilePresentationTest {
     }
 
     @Test public void headingUsesOnlyCurrentDirectory() {
-        assertEquals("文件库", FilePresentation.title("/"));
+        assertEquals("", FilePresentation.title("/"));
         assertEquals("Movies", FilePresentation.title("/Drive/Movies"));
         assertEquals("Movies", FilePresentation.title("/Drive/Movies/"));
     }

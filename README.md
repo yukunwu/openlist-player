@@ -1,12 +1,20 @@
 # OpenList TV
 
-Android and storage support: [Android / OpenList compatibility matrix](docs/COMPATIBILITY.md).
-Pre-publication findings: [security, compatibility and UI review](docs/REVIEW-2026-10-23.md).
+English | [简体中文](README.zh-CN.md)
+
+Android and storage support: [Android / OpenList compatibility matrix (Chinese)](docs/COMPATIBILITY.md).
+Pre-publication findings: [security, compatibility and UI review (Chinese)](docs/REVIEW-2026-10-23.md).
 
 An independent, TV-focused OpenList file browser and player. Landscape layout, D-pad focus navigation,
 Android TV and standard Android launcher entries, Android 6.0 / API 23 minimum. The standard launcher icon
 allows phone testing; it opens the same TV interface, not a phone-specific layout.
 Not affiliated with OpenList or any cloud provider.
+
+## Languages
+
+The app supports English and Simplified Chinese, following the Android system language. Other languages
+fall back to English. The pairing form follows the browser language. Media3 controls use its bundled
+translations. File names and server-provided content are not translated.
 
 ## Features
 
@@ -36,8 +44,8 @@ Not affiliated with OpenList or any cloud provider.
 
 ## Playback limits
 
-The **比例** control remembers the selected picture mode. Original aspect fits the source without distortion;
-4:3 and 16:9 reshape it into that aspect ratio (letterboxed as needed), while **拉伸铺满** fills the whole
+The **Aspect ratio** control remembers the selected picture mode. Original aspect fits the source without distortion;
+4:3 and 16:9 reshape it into that aspect ratio (letterboxed as needed), while **Stretch** fills the whole
 screen and may distort the image. These controls do not alter video files or request a new stream.
 Brightness gestures affect only the playback window, not the global brightness setting or a TV's physical backlight.
 It resets to system brightness on a fresh player launch; activity recreation preserves the current value.
@@ -70,7 +78,7 @@ Visual direction and offline interaction prototypes live in `design/` (see `desi
 Generated-image availability is tracked separately in `design/generated/README.md`; a prototype is not an
 AI-generated image or a claim of on-device validation.
 
-- Compact 84dp navigation rail with labeled vector icons; server login and logout live in **服务器**.
+- Compact 84dp navigation rail with labeled vector icons; server login and logout live in **Server**.
 - Neutral charcoal background, translucent black/gray layers, white remote-focus outlines and restrained
   red playback accents; separate filename/type/size fields. No live blur or transparent app window.
 - Current-directory heading, abbreviated breadcrumb, page count, empty state and focused long-name marquee.
@@ -78,10 +86,10 @@ AI-generated image or a claim of on-device validation.
 
 ## Configure from your phone
 
-On the TV, open **服务器 → 连接服务器 / 登录 → 手机扫码填写配置**. Connect your phone and TV to the same trusted LAN,
+On the TV, open **Server → Connect / Sign in → Scan with your phone**. Connect your phone and TV to the same trusted LAN,
 scan the displayed QR code into a browser, and enter your OpenList URL, username, password and optional OTP.
 Verify the pairing identifier matches the TV. Send, then approve the displayed server/account on the TV;
-the manual login form is filled, and you press **登录**. No phone companion app is required.
+the manual login form is filled, and you press **Sign in**. No phone companion app is required.
 
 - The TV starts a temporary HTTP receiver bound to one private IPv4 interface on a random port. It is
   only present while the pairing screen is active, for at most 3 minutes and one accepted submission.
@@ -141,7 +149,7 @@ installable production APK signed with the same certificate as local official re
 
 Pushing a version tag publishes the signed production APK, public certificate fingerprints and SHA-256 checksums to
 [GitHub Releases](https://github.com/yukunwu/openlist-player/releases). Update `versionName` and increment
-`versionCode` in `app/build.gradle` before tagging the matching version, e.g. `v0.1.9`.
+`versionCode` in `app/build.gradle` before tagging the matching version, e.g. `v0.1.10`.
 
 - `*-debug.apk` is installable for testing, but CI uses a disposable debug signing key. It may not upgrade
   a local debug installation or a previous CI build. Do not uninstall or clear data to force installation.
@@ -166,7 +174,7 @@ this project currently distributes APKs directly through GitHub.
 
 ## Verification status
 
-- Version 0.1.9 passes 40 JVM tests in both debug and release, Lint (zero errors), APK signature
+- Version 0.1.10 passes 42 JVM tests in both debug and release, Lint (zero errors), APK signature
   verification (v1/v2, including API 23 compatibility) and zip alignment. Dedicated RSA-3072 certificate;
   no debug flag. Signed-release installation/playback has not been tested.
 - Desktop Chrome at mobile viewport passed actual form submission against the Java receiver with synthetic
