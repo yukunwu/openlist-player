@@ -130,6 +130,23 @@ All future releases must reuse the same signing key and increase `versionCode` f
 The release certificate differs from the debug certificate: it cannot replace the currently installed
 debug app in place. Do not uninstall or clear app data just to test a release without explicit consent.
 
+## GitHub Actions builds
+
+The [Android APK workflow](https://github.com/yukunwu/openlist-player/actions/workflows/android.yml)
+runs on pushes to `main`, pull requests, version tags (`v*`) and manual **Run workflow** requests.
+It runs both variants' unit tests and Lint, then builds debug and optimized unsigned release APKs.
+Download `openlist-tv-apks` under a successful run's **Artifacts** (retained for 14 days).
+
+Pushing a version tag also publishes the APKs and SHA-256 checksums to
+[GitHub Releases](https://github.com/yukunwu/openlist-player/releases). Update `versionName` and increment
+`versionCode` in `app/build.gradle` before tagging the matching version, e.g. `v0.1.9`.
+
+- `*-debug.apk` is installable for testing, but CI uses a disposable debug signing key. It may not upgrade
+  a local debug installation or a previous CI build. Do not uninstall or clear data to force installation.
+- `*-release-unsigned.apk` is optimized but **must be signed before installation** using the same stable
+  release key for future upgrades. The workflow does not upload or use the owner's private signing key.
+- No required checks, branch protections or approval gates are configured by this workflow.
+
 ## Verification status
 
 - Version 0.1.9 passes 40 JVM tests in both debug and release, Lint (zero errors), APK signature
