@@ -40,7 +40,7 @@ jobs:
           (cd dist && sha256sum *.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: openlist-tv-signed-release
+          name: openlist-tv-apks
           path: dist/
           retention-days: 14
           if-no-files-found: error
