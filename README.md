@@ -136,16 +136,33 @@ The [Android APK workflow](https://github.com/yukunwu/openlist-player/actions/wo
 runs on pushes to `main`, pull requests, version tags (`v*`) and manual **Run workflow** requests.
 It runs both variants' unit tests and Lint, then builds debug and optimized unsigned release APKs.
 Download `openlist-tv-apks` under a successful run's **Artifacts** (retained for 14 days).
+Trusted `main` and version-tag builds additionally produce `openlist-tv-signed-release`, containing an
+installable production APK signed with the same certificate as local official releases.
 
-Pushing a version tag also publishes the APKs and SHA-256 checksums to
+Pushing a version tag publishes the signed production APK, public certificate fingerprints and SHA-256 checksums to
 [GitHub Releases](https://github.com/yukunwu/openlist-player/releases). Update `versionName` and increment
 `versionCode` in `app/build.gradle` before tagging the matching version, e.g. `v0.1.9`.
 
 - `*-debug.apk` is installable for testing, but CI uses a disposable debug signing key. It may not upgrade
   a local debug installation or a previous CI build. Do not uninstall or clear data to force installation.
-- `*-release-unsigned.apk` is optimized but **must be signed before installation** using the same stable
-  release key for future upgrades. The workflow does not upload or use the owner's private signing key.
+- `*-release.apk` in `openlist-tv-signed-release` is the installable official build. Unsigned APKs remain
+  available in the build artifact for independent signing, but cannot be installed as-is.
 - No required checks, branch protections or approval gates are configured by this workflow.
+
+### CI signing secrets
+
+The official keystore and passwords are stored as GitHub Actions repository secrets:
+`ANDROID_KEYSTORE_BASE64`, `ANDROID_STORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`.
+Base64 is transport encoding, not encryption; GitHub Secrets provides encrypted storage.
+The keystore is decoded only into the signing runner's temporary directory and removed after signing.
+It is never committed, cached or included in artifacts. Signing runs in a separate job without checking
+out or executing repository code. Pull requests never run that job or receive the signing secrets.
+
+Keep a separate secure backup of the original signing key and passwords. Repository administrators and
+people able to change trusted workflows must be trusted: Secrets does not prevent a malicious authorized
+workflow from using or leaking a key. Public forks must supply their own keys and cannot produce updates
+signed as this project. Google Play distribution can instead use Play App Signing with a separate upload key;
+this project currently distributes APKs directly through GitHub.
 
 ## Verification status
 
